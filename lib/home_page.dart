@@ -20,8 +20,6 @@ transaction(BuildContext context) {
 }
 
 class _HomePageState extends State<HomePage> {
-  DbManager dbManager = DbManager();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,7 +55,7 @@ class _HomePageState extends State<HomePage> {
               return Center(
                 child: Text("no data"),
               );
-            }else{}
+            } else {}
             return Center(
               child: Text("correct"),
             );

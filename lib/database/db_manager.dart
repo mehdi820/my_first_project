@@ -1,32 +1,47 @@
 import 'package:hive/hive.dart';
+import 'dart:async';
 
-class DbManager {
-  late Box box;
+class DBManager {
+  static final DBManager _instance = DBManager._internal();
+  late Box _box;
+  final Completer<void> _completer = Completer<void>();
 
-  DbManager() {
-    openBox();
+  factory DBManager() {
+    return _instance;
   }
 
-  openBox() {
-    Hive.box("box");
+  DBManager._internal();
+
+  Future<void> init() async {
+    _box = await Hive.openBox('myBox');
+    _completer.complete();
   }
 
-  Future addData(
+  Future<void> _ensureInitialized() async {
+    if (!_completer.isCompleted) {
+      await _completer.future;
+    }
+  }
+
+  Future<void> addData(
       int amount, dynamic description, DateTime date, String type) async {
+    await _ensureInitialized();
     var value = {
       "amount": amount,
       "description": description,
       "date": date,
       "type": type
     };
-    box.add(value);
+    _box.putAll(value);
   }
 
-  Future<Map> fetch() {
-    if (box.values.isEmpty) {
-      return Future.value({});
-    } else {
-      return Future.value(box.toMap());
-    }
+  Future<dynamic> getData(String key) async {
+    await _ensureInitialized();
+    return _box.get(key);
+  }
+
+  Future<void> deleteData(String key) async {
+    await _ensureInitialized();
+    _box.delete(key);
   }
 }

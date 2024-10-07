@@ -1,8 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:my_first_project/database/db_manager.dart';
-import 'package:persian_datetime_picker/persian_datetime_picker.dart';
 
 class TransAction extends StatefulWidget {
   const TransAction({super.key});
@@ -16,6 +14,13 @@ class _HomePageState extends State<TransAction> {
   DateTime selectedDate = DateTime.now();
   int amount = 0;
   String description = "";
+  final DBManager dbManager = DBManager();
+
+  @override
+  void initState() {
+    super.initState();
+    dbManager.init();
+  }
 
   List<String> months = [
     'Jan',
@@ -71,7 +76,10 @@ class _HomePageState extends State<TransAction> {
             onChanged: (val) {
               try {
                 amount = int.parse(val);
-              } catch (e) {}
+                print("amount is: $amount");
+              } catch (e) {
+                throw Exception("amount catch error: $e");
+              }
             },
           ),
           Gap(20),
@@ -89,8 +97,9 @@ class _HomePageState extends State<TransAction> {
             onChanged: (val) {
               try {
                 description = val;
+                print("description is: $description");
               } catch (e) {
-                print("Error opening box: $e");
+                throw Exception("description catch error: $e");
               }
             },
           ),
@@ -166,12 +175,12 @@ class _HomePageState extends State<TransAction> {
           Padding(
             padding: const EdgeInsets.all(20),
             child: ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 print(description);
                 print(amount);
-                if (amount != 0 && description!="") {
-                  DbManager dbManager = DbManager();
-                  dbManager.addData(amount, description, selectedDate, type);
+                if (amount != 0 && description != "") {
+                  await dbManager.addData(
+                      amount, description, selectedDate, type);
                 } else {
                   print("wrong");
                 }
